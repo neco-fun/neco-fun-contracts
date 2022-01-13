@@ -21,7 +21,7 @@ contract NecoSaleContract is Ownable {
     // NECO Token Amount in this contract.
     uint public necoTokenTotalAmount = 0;
     // Max limitation for every account; 1500U for everyone
-    uint public buyLimit = 500 * 1e18;
+    uint public buyLimit = 1500 * 1e18;
 
     // Claim Map
     struct ClaimTimeStruct {
