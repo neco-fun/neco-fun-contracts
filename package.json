@@ -1,0 +1,29 @@
+{
+  "name": "neco-fun-contract",
+  "description": "",
+  "version": "1.0.0",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.4.1",
+    "truffle": "^5.4.25"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "build": "truffle compile",
+    "deploy": "truffle migrate --reset",
+    "test": "truffle test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Necofun-Games/neco-fun-contract.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Necofun-Games/neco-fun-contract/issues"
+  },
+  "homepage": "https://github.com/Necofun-Games/neco-fun-contract#readme"
+}
