@@ -16,12 +16,12 @@ contract NecoSaleContract is Ownable {
     mapping (address=>bool) public whitelist;
 
     address public devAddress;
-    // NECO Token Price; 1 NECO for 3 USDC
+    // NECO Token Price; 1 NECO for 3 busd
     uint public necoTokenPrice = 3;
     // NECO Token Amount in this contract.
     uint public necoTokenTotalAmount = 0;
     // Max limitation for every account; 1500U for everyone
-    uint public buyLimit = 500 * 1e6;
+    uint public buyLimit = 500 * 1e18;
 
     // Claim Map
     struct ClaimTimeStruct {
@@ -45,16 +45,16 @@ contract NecoSaleContract is Ownable {
     bool public claimEnabled = false;
 
     IERC20 public necoToken;
-    IERC20 public usdc;
+    IERC20 public busd;
 
     event BuyNecoSuccess(address indexed account, uint usdAmount, uint necoAmount);
     event ClaimSuccess(address indexed account, uint necoAmount);
 
     // for that time, we may need to add whitelist 1 by 1, or we may init them at one time.
-    constructor(address account, IERC20 _necoToken, IERC20 _usdc) {
+    constructor(address account, IERC20 _necoToken, IERC20 _busd) {
         devAddress = account;
         necoToken = _necoToken;
-        usdc = _usdc;
+        busd = _busd;
         initWhitelist();
     }
 
@@ -93,7 +93,7 @@ contract NecoSaleContract is Ownable {
     }
 
     // enable claim. will be generate 9 time interval.
-    // so we can get the index for claiming accroding to current time.
+    // so we can get the index for claiming according to current time.
     function enableClaim() external onlyOwner {
         claimEnabled = true;
 
@@ -138,28 +138,29 @@ contract NecoSaleContract is Ownable {
     }
 
     // buy NECO token.
-    function buyNecoToken(uint usdcAmount) external saleHasStarted needHaveRemaining returns(bool) {
+    function buyNecoToken(uint necoAmount) external saleHasStarted needHaveRemaining returns(bool) {
         if (!fcfsEnabled) {
             require(whitelist[msg.sender], "You are not in whitelist, you can wait for FCFS");
         }
 
-        require(usdcAmount >= 1e6, "at least 1 USDC");
-        uint necoTokenAmountCanBuy = usdcAmount.mul(1e12).div(necoTokenPrice);
-        require(hasBoughtPerAccount[msg.sender].add(usdcAmount) <= buyLimit, "Oh no! You want to buy too much");
-        require(necoTokenAmountCanBuy <= necoTokenTotalAmount, "Oh no! there is no enough token remaining.");
-        usdc.safeTransferFrom(msg.sender, devAddress, usdcAmount);
+        require(necoAmount >= 1e18, "at least 1 NECO");
+        uint busdAmountRequired = necoAmount.mul(necoTokenPrice);
+        require(hasBoughtPerAccount[msg.sender].add(busdAmountRequired) <= buyLimit, "Oh no! You want to buy too much");
+        require(necoAmount <= necoTokenTotalAmount, "Oh no! there is no enough token remaining.");
+        busd.safeTransferFrom(msg.sender, devAddress, busdAmountRequired);
         // update status
-        hasBoughtPerAccount[msg.sender] = hasBoughtPerAccount[msg.sender].add(usdcAmount);
-        necoTokenAmountPerAccount[msg.sender] = necoTokenAmountPerAccount[msg.sender].add(necoTokenAmountCanBuy);
+        hasBoughtPerAccount[msg.sender] = hasBoughtPerAccount[msg.sender].add(busdAmountRequired);
+        necoTokenAmountPerAccount[msg.sender] = necoTokenAmountPerAccount[msg.sender].add(necoAmount);
 
         buildClaimRoadmap(msg.sender);
-        necoTokenTotalAmount = necoTokenTotalAmount.sub(necoTokenAmountCanBuy);
-        emit BuyNecoSuccess(msg.sender, usdcAmount, necoTokenAmountCanBuy);
+        necoTokenTotalAmount = necoTokenTotalAmount.sub(necoAmount);
+        emit BuyNecoSuccess(msg.sender, busdAmountRequired, necoAmount);
         return true;
     }
 
     // claim token. then update user's claim map.
-    function claimToken() external cliamEnabled returns(bool) {
+    function claimToken() external returns(bool) {
+        require(claimEnabled, "Claim has not been started.");
         require(necoTokenAmountPerAccount[msg.sender] > 0, "You have no NECO token.");
 
         uint claimableAmount = necoTokenClaimableAmount(msg.sender);
@@ -232,11 +233,6 @@ contract NecoSaleContract is Ownable {
 
     modifier saleHasStarted() {
         require(saleStarted, "sale has not been started.");
-        _;
-    }
-
-    modifier cliamEnabled() {
-        require(claimEnabled, "Claim has not been started.");
         _;
     }
 }
