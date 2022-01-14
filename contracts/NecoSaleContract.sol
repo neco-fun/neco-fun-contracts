@@ -73,6 +73,7 @@ contract NecoSaleContract is Ownable {
     }
 
     function setDevAddress(address account) external onlyOwner {
+        require(account != address(this), "account can not be 0!");
         devAddress = account;
     }
 
