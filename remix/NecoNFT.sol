@@ -1621,6 +1621,7 @@ contract NecoNFT is ERC1155, ERC1155Burnable, Ownable {
     EnumerableSet.UintSet private tokenIds;
     // Some default NFTs need to be locked.
     EnumerableSet.UintSet private lockedTokenIds;
+    mapping(uint => uint) public totalSupply;
     mapping(address => bool) public transferWhitelist;
 
     constructor(string memory uri_) ERC1155(uri_) {}
@@ -1639,12 +1640,14 @@ contract NecoNFT is ERC1155, ERC1155Burnable, Ownable {
         require(!tokenIds.contains(tokenId), "tokenId is existed!");
         uris[tokenId] = uri_;
         tokenIds.add(tokenId);
+        totalSupply[tokenId] = totalSupply[tokenId].add(quantity);
         _mint(to, tokenId, quantity, data);
     }
 
     function mint(uint tokenId, address to, uint quantity, bytes memory data) external onlyCreator {
         require(quantity > 0, "quantity cannot be 0!");
         require(tokenIds.contains(tokenId), "NFT has not been created!");
+        totalSupply[tokenId] = totalSupply[tokenId].add(quantity);
         _mint(to, tokenId, quantity, data);
     }
 
