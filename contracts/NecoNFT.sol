@@ -27,7 +27,7 @@ contract NecoNFT is ERC1155, ERC1155Burnable, Ownable {
 
     // before calling this function, we should upload metadata of this NFT to IPFS.
     // finally, minting a NFT by calling this function after getting the uri of ipfs.
-    function mint(
+    function create(
         uint tokenId,
         address to,
         string memory uri_,
@@ -39,6 +39,12 @@ contract NecoNFT is ERC1155, ERC1155Burnable, Ownable {
         require(!tokenIds.contains(tokenId), "tokenId is existed!");
         uris[tokenId] = uri_;
         tokenIds.add(tokenId);
+        _mint(to, tokenId, quantity, data);
+    }
+
+    function mint(uint tokenId, address to, uint quantity, bytes memory data) external onlyCreator {
+        require(quantity > 0, "quantity cannot be 0!");
+        require(tokenIds.contains(tokenId), "NFT has not been created!");
         _mint(to, tokenId, quantity, data);
     }
 
