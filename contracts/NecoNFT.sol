@@ -16,53 +16,63 @@ contract NecoNFT is ERC1155, ERC1155Burnable, Ownable {
     // only creators can mint new NFT.
     mapping(address => bool) public creators;
     // uri mapping for tokenId
-    mapping(uint => string) private uris;
+    mapping(uint => string) private _uris;
+    mapping(uint => uint) private _idToType;
     // TokenId array
-    EnumerableSet.UintSet private tokenIds;
+    EnumerableSet.UintSet private _tokenIds;
     // Some default NFTs need to be locked.
-    EnumerableSet.UintSet private lockedTokenIds;
+    EnumerableSet.UintSet private _lockedTokenIds;
     mapping(uint => uint) public totalSupply;
     mapping(address => bool) public transferWhitelist;
 
     constructor(string memory uri_) ERC1155(uri_) {}
+
+    event Create(uint tokenId, address to, string uri, uint quantity, uint nftType);
+    event Mint(uint tokenId, address to, uint quantity);
 
     // before calling this function, we should upload metadata of this NFT to IPFS.
     // finally, minting a NFT by calling this function after getting the uri of ipfs.
     function create(
         uint tokenId,
         address to,
-        string memory uri_,
+        string memory nftUrl,
         uint quantity,
+        uint nftType,
         bytes memory data
     ) external onlyCreator {
-        bytes memory uriBytes = bytes(uri_);
+        bytes memory uriBytes = bytes(nftUrl);
         require(uriBytes.length != 0, "uri can not be null");
-        require(!tokenIds.contains(tokenId), "tokenId is existed!");
-        uris[tokenId] = uri_;
-        tokenIds.add(tokenId);
+        require(!_tokenIds.contains(tokenId), "tokenId is existed!");
+        _uris[tokenId] = nftUrl;
+        _tokenIds.add(tokenId);
         totalSupply[tokenId] = totalSupply[tokenId].add(quantity);
+        _idToType[tokenId] = nftType;
         _mint(to, tokenId, quantity, data);
+
+        emit Create(tokenId, to, nftUrl, quantity, nftType);
     }
 
     function mint(uint tokenId, address to, uint quantity, bytes memory data) external onlyCreator {
         require(quantity > 0, "quantity cannot be 0!");
-        require(tokenIds.contains(tokenId), "NFT has not been created!");
+        require(_tokenIds.contains(tokenId), "NFT has not been created!");
         totalSupply[tokenId] = totalSupply[tokenId].add(quantity);
         _mint(to, tokenId, quantity, data);
+
+        emit Mint(tokenId, to, quantity);
     }
 
-    function changeMetadataURI(string memory uri_) external onlyOwner {
-        _setURI(uri_);
+    function changeMetadataURI(string memory newUri) external onlyOwner {
+        _setURI(newUri);
     }
 
     function changeUriById(uint id, string memory newUri) external onlyOwner {
         bytes memory uriBytes = bytes(newUri);
         require(uriBytes.length != 0, "uri can not be null");
-        uris[id] = newUri;
+        _uris[id] = newUri;
     }
 
     function uri(uint id) public override view returns(string memory) {
-        return uris[id];
+        return _uris[id];
     }
 
     function addCreator(address account) external onlyOwner {
@@ -75,27 +85,27 @@ contract NecoNFT is ERC1155, ERC1155Burnable, Ownable {
     }
 
     function addLockedNFT(uint id) external onlyOwner {
-        lockedTokenIds.add(id);
+        _lockedTokenIds.add(id);
     }
 
     function cancelLockingNFT(uint id) external onlyOwner {
-        lockedTokenIds.remove(id);
+        _lockedTokenIds.remove(id);
     }
 
     function getTokenIdsLength() public view returns(uint) {
-        return tokenIds.length();
+        return _tokenIds.length();
     }
 
     function getTokenIdByIndex(uint index) public view returns(uint) {
-        return tokenIds.at(index);
+        return _tokenIds.at(index);
     }
 
     function getLockedTokenIdsLength() public view returns(uint) {
-        return lockedTokenIds.length();
+        return _lockedTokenIds.length();
     }
 
     function getLockedTokenIdsByIndex(uint index) public view returns(uint) {
-        return lockedTokenIds.at(index);
+        return _lockedTokenIds.at(index);
     }
 
     function addIntoTransferWhitelist(address account) external onlyOwner {
@@ -108,6 +118,15 @@ contract NecoNFT is ERC1155, ERC1155Burnable, Ownable {
         transferWhitelist[account] = false;
     }
 
+    function getNFTType(uint id) public view returns(uint) {
+        return _idToType[id];
+    }
+
+    function changeNFTType(uint id, uint newType) external {
+        require(creators[msg.sender], "You are not a cerator");
+        _idToType[id] = newType;
+    }
+
     function safeTransferFrom(
         address from,
         address to,
@@ -115,7 +134,7 @@ contract NecoNFT is ERC1155, ERC1155Burnable, Ownable {
         uint256 amount,
         bytes memory data
     ) public override {
-        require(!lockedTokenIds.contains(id) || transferWhitelist[from], "NFT is locked.");
+        require(!_lockedTokenIds.contains(id) || transferWhitelist[from], "NFT is locked.");
         super.safeTransferFrom(from, to, id, amount, data);
     }
 
@@ -129,7 +148,7 @@ contract NecoNFT is ERC1155, ERC1155Burnable, Ownable {
         if (!transferWhitelist[from]) {
             for(uint i = 0; i < ids.length; i ++) {
                 uint id = ids[i];
-                if (lockedTokenIds.contains(id)) {
+                if (_lockedTokenIds.contains(id)) {
                     revert("Batch of NFT contains locked NFT!");
                 }
             }

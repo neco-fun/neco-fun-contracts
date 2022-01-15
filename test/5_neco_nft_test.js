@@ -2,16 +2,18 @@ const NecoNFT = artifacts.require("NecoNFT");
 
 contract("NecoNFT", ([Tom, Jerry, Rose]) => {
     it("should mint NFT correctly", async () => {
+        // test when user is not a creator.
         const necoNft = await NecoNFT.deployed()
         let err = null;
         try {
-            await necoNft.mint(1, Tom, '', 10, web3.utils.utf8ToHex('Neco Fishing'));
+            await necoNft.create(1, Tom, '', 10, 0, web3.utils.utf8ToHex('Neco Fishing'));
         } catch (error) {
             err = error;
         }
         assert.ok(err instanceof Error);
         await necoNft.addCreator(Tom);
 
+        // test when token has not been creator.
         err = null
         try {
             await necoNft.mint(1, Tom, '', 10, web3.utils.utf8ToHex('Neco Fishing'));
@@ -20,21 +22,16 @@ contract("NecoNFT", ([Tom, Jerry, Rose]) => {
         }
         assert.ok(err instanceof Error);
 
-        await necoNft.mint(1, Tom, 'ipfs://test.com', 10, web3.utils.utf8ToHex('Neco Fishing'));
+        await necoNft.create(1, Tom, 'ipfs://test.com', 10, 0, web3.utils.utf8ToHex('Neco Fishing'));
         assert.equal(await necoNft.balanceOf(Tom, 1).valueOf(), 10);
 
         assert.equal(await necoNft.uri(1).valueOf(), "ipfs://test.com")
 
-        await necoNft.mint(2, Tom, 'ipfs://test2.com', 10, web3.utils.utf8ToHex('Neco Fishing'));
-        await necoNft.mint(3, Tom, 'ipfs://test3.com', 10, web3.utils.utf8ToHex('Neco Fishing'));
+        await necoNft.create(2, Tom, 'ipfs://test2.com', 10, 0, web3.utils.utf8ToHex('Neco Fishing'));
+        await necoNft.create(3, Tom, 'ipfs://test3.com', 10, 0, web3.utils.utf8ToHex('Neco Fishing'));
 
-        err = null;
-        try {
-            await necoNft.mint(1, Tom, 'ipfs://test3.com', 10, web3.utils.utf8ToHex('Neco Fishing'));
-        } catch (error) {
-            err = error;
-        }
-        assert.ok(err instanceof Error);
+        await necoNft.mint(1, Tom, 10, web3.utils.utf8ToHex('Neco Fishing'));
+        assert.equal(await necoNft.balanceOf(Tom, 1).valueOf(), 20);
     })
 
     it("can not transfer NFT when NFT is locked", async () => {
