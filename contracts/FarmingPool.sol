@@ -37,7 +37,7 @@ contract FarmingPool is Ownable {
     mapping(address => uint) private rewards;
     mapping(address => uint) private userRewardPerTokenPaid;
 
-    // Something for DevFund.
+    // Fund for dev will be locked in this contract and distributed during in 180days.
     address public devAddr;
     uint public devDistributeRate = 0;
     uint public lastDistributeTime = 0;
