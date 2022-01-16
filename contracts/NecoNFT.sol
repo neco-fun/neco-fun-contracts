@@ -27,8 +27,8 @@ contract NecoNFT is ERC1155, ERC1155Burnable, Ownable {
 
     constructor(string memory uri_) ERC1155(uri_) {}
 
-    event Create(uint tokenId, address to, string uri, uint quantity, uint nftType);
-    event Mint(uint tokenId, address to, uint quantity);
+    event Create(uint indexed tokenId, address indexed to, string uri, uint quantity, uint nftType);
+    event Mint(uint indexed tokenId, address indexed to, uint quantity);
 
     // before calling this function, we should upload metadata of this NFT to IPFS.
     // finally, minting a NFT by calling this function after getting the uri of ipfs.
@@ -65,7 +65,7 @@ contract NecoNFT is ERC1155, ERC1155Burnable, Ownable {
         _setURI(newUri);
     }
 
-    function changeUriById(uint id, string memory newUri) external onlyOwner {
+    function changeUri(uint id, string memory newUri) external onlyCreator {
         bytes memory uriBytes = bytes(newUri);
         require(uriBytes.length != 0, "uri can not be null");
         _uris[id] = newUri;
@@ -84,11 +84,11 @@ contract NecoNFT is ERC1155, ERC1155Burnable, Ownable {
         creators[account] = false;
     }
 
-    function addLockedNFT(uint id) external onlyOwner {
+    function addLockedNFT(uint id) external onlyCreator {
         _lockedTokenIds.add(id);
     }
 
-    function cancelLockingNFT(uint id) external onlyOwner {
+    function cancelLockingNFT(uint id) external onlyCreator {
         _lockedTokenIds.remove(id);
     }
 
@@ -108,12 +108,12 @@ contract NecoNFT is ERC1155, ERC1155Burnable, Ownable {
         return _lockedTokenIds.at(index);
     }
 
-    function addIntoTransferWhitelist(address account) external onlyOwner {
+    function addIntoTransferWhitelist(address account) external onlyCreator {
         require(account != address(0), "Account is 0");
         transferWhitelist[account] = true;
     }
 
-    function removeFromTransferWhitelist(address account) external onlyOwner {
+    function removeFromTransferWhitelist(address account) external onlyCreator {
         require(account != address(0), "Account is 0");
         transferWhitelist[account] = false;
     }
@@ -122,8 +122,7 @@ contract NecoNFT is ERC1155, ERC1155Burnable, Ownable {
         return _idToType[id];
     }
 
-    function changeNFTType(uint id, uint newType) external {
-        require(creators[msg.sender], "You are not a cerator");
+    function changeNFTType(uint id, uint newType) external onlyCreator {
         _idToType[id] = newType;
     }
 
