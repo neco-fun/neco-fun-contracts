@@ -21,10 +21,10 @@ contract NecoFishingToken is ERC20("NecoFishing", "NFISH"), Ownable {
     uint public mintAmount = 0;
     uint public unlockDuration = 2 days;
 
-    event AddMinter(address account);
-    event RemoveMinter(address account);
-    event AddBurner(address account);
-    event RemoveBurner(address account);
+    event AddMinter(address indexed account);
+    event RemoveMinter(address indexed account);
+    event AddBurner(address indexed account);
+    event RemoveBurner(address indexed account);
     event TransferUnlocked(bool result);
 
     /**

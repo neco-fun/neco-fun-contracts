@@ -23,7 +23,7 @@ contract FarmingPool is Ownable {
     uint private _lpTotalSupply;
 
     // decreasing period time
-    uint public constant DURATION = 2 weeks;
+    uint public constant DURATION = 4 weeks;
     // initial data, will be initialized in initData function
     uint public initReward = 0;
     uint public totalReward = 0;
