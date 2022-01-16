@@ -18,6 +18,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Neco-Fun/neco-fun-platform-contract.git"
+    "url": "git+https://github.com/Neco-Fun/neco-fun-contracts.git"
   }
 }
