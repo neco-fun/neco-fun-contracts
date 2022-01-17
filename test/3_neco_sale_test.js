@@ -86,38 +86,22 @@ contract("NecoSaleContract", ([Tom, Jerry, Rose]) => {
     );
     assert.equal(
       await necoSaleContract.userClaimRoadMap(Jerry, 1).valueOf(),
-      "50000000000000000000"
+      "100000000000000000000"
     );
     assert.equal(
       await necoSaleContract.userClaimRoadMap(Jerry, 2).valueOf(),
-      "50000000000000000000"
+      "100000000000000000000"
     );
     assert.equal(
       await necoSaleContract.userClaimRoadMap(Jerry, 3).valueOf(),
-      "50000000000000000000"
+      "100000000000000000000"
     );
     assert.equal(
       await necoSaleContract.userClaimRoadMap(Jerry, 4).valueOf(),
-      "50000000000000000000"
+      "100000000000000000000"
     );
     assert.equal(
       await necoSaleContract.userClaimRoadMap(Jerry, 5).valueOf(),
-      "50000000000000000000"
-    );
-    assert.equal(
-      await necoSaleContract.userClaimRoadMap(Jerry, 6).valueOf(),
-      "50000000000000000000"
-    );
-    assert.equal(
-      await necoSaleContract.userClaimRoadMap(Jerry, 7).valueOf(),
-      "50000000000000000000"
-    );
-    assert.equal(
-      await necoSaleContract.userClaimRoadMap(Jerry, 8).valueOf(),
-      "50000000000000000000"
-    );
-    assert.equal(
-      await necoSaleContract.userClaimRoadMap(Jerry, 9).valueOf(),
       "0"
     );
   });

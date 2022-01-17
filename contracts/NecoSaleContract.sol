@@ -102,7 +102,7 @@ contract NecoSaleContract is Ownable {
         uint claimStartTime = block.timestamp;
         uint claimEndTime = block.timestamp + claimPeriod;
 
-        for (uint i = 0; i < 9; i ++) {
+        for (uint i = 0; i < 5; i ++) {
             claimTimes[i].startTime = claimStartTime;
             claimTimes[i].endTime = claimEndTime;
 
@@ -114,13 +114,13 @@ contract NecoSaleContract is Ownable {
     // get index of cliaming accroding to current time.
     function getCurrentIndexOfClaim() view public returns(uint) {
         uint currentTime = block.timestamp;
-        for (uint i = 0; i < 9; i ++) {
+        for (uint i = 0; i < 5; i ++) {
             if (currentTime >= claimTimes[i].startTime &&
             currentTime < claimTimes[i].endTime) {
                 return i;
             }
         }
-        return 9;
+        return 5;
     }
 
     // set neco token again.
@@ -188,14 +188,9 @@ contract NecoSaleContract is Ownable {
 
     // build a claim roadmap, so that we can know how many tokens users can get accroding to current index.
     function buildClaimRoadmap(address account) private {
-        uint firstClaimableAmount = necoTokenAmountPerAccount[account].mul(2).div(10);
-        uint necoClaimablePerMonth = firstClaimableAmount.div(2);
-        for (uint i = 0; i < 9; i ++) {
-            if (i == 0) {
-                userClaimRoadMap[account][i] = firstClaimableAmount;
-            } else {
-                userClaimRoadMap[account][i] = necoClaimablePerMonth;
-            }
+        uint necoClaimablePerMonth = necoTokenAmountPerAccount[account].mul(2).div(10);
+        for (uint i = 0; i < 5; i ++) {
+            userClaimRoadMap[account][i] = necoClaimablePerMonth;
         }
     }
 

@@ -42,7 +42,7 @@ contract("nfishToken", ([Tom, Jerry, Rose]) => {
     // test when Jerry is a minter
     await nfishToken.addMinter(Jerry);
     await nfishToken.mint(Tom, 1000, { from: Jerry });
-    assert(await nfishToken.balanceOf(Tom).valueOf(), 1000);
+    assert.equal(await nfishToken.balanceOf(Tom).valueOf(), 1000);
   });
 
   it("should have a good goingToMint function", async () => {
