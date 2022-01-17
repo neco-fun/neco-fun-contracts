@@ -25,10 +25,8 @@ Due to some default NFT tools for neco fishing need to be locked, we hope these 
 #### This is a public sale/ private sale contract for NECO Token.
 First we should call depositNecoToken(amount) to init its statuses. The amount should be calculated then according to the amount of whitelist.
 Then user can buy NECO token in BUSD; there is a limitation for every buyer.
-Claim: claim duration 20 days.
-The first time user can claim 20%
-The second time 10%
-The third time 10% ....
+Claim: claim duration 30 days.
+Monthly claimable 20%
 
 ## FarmingPool.sol
 #### This is the farming contact for NECO token.
