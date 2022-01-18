@@ -18,6 +18,7 @@ contract NecoNFT is ERC1155, ERC1155Burnable, Ownable {
     // uri mapping for tokenId
     mapping(uint => string) private _uris;
     mapping(uint => uint) private _idToType;
+    mapping(uint => uint) private _idToGameType;
     // TokenId array
     EnumerableSet.UintSet private _tokenIds;
     // Some default NFTs need to be locked.
@@ -37,6 +38,7 @@ contract NecoNFT is ERC1155, ERC1155Burnable, Ownable {
         address to,
         string memory nftUrl,
         uint quantity,
+        uint gameType,
         uint nftType,
         bytes memory data
     ) external onlyCreator {
@@ -46,6 +48,7 @@ contract NecoNFT is ERC1155, ERC1155Burnable, Ownable {
         _uris[tokenId] = nftUrl;
         _tokenIds.add(tokenId);
         totalSupply[tokenId] = totalSupply[tokenId].add(quantity);
+        _idToGameType[tokenId] = gameType;
         _idToType[tokenId] = nftType;
         _mint(to, tokenId, quantity, data);
 
@@ -116,6 +119,14 @@ contract NecoNFT is ERC1155, ERC1155Burnable, Ownable {
     function removeFromTransferWhitelist(address account) external onlyCreator {
         require(account != address(0), "Account is 0");
         transferWhitelist[account] = false;
+    }
+
+    function getGameType(uint id) public view returns(uint) {
+        return _idToGameType[id];
+    }
+
+    function changeGameType(uint id, uint newType) external onlyCreator {
+        _idToGameType[id] = newType;
     }
 
     function getNFTType(uint id) public view returns(uint) {
