@@ -20,6 +20,7 @@ contract NecoSaleContract is Ownable {
     uint public necoTokenPrice = 3;
     // NECO Token Amount in this contract.
     uint public necoTokenTotalAmount = 0;
+    uint public necoTokenTotalSoldAmount = 0;
     // Max limitation for every account; 1500U for everyone
     uint public buyLimit = 1500 * 1e18;
 
@@ -155,6 +156,7 @@ contract NecoSaleContract is Ownable {
 
         buildClaimRoadmap(msg.sender);
         necoTokenTotalAmount = necoTokenTotalAmount.sub(necoAmount);
+        necoTokenTotalSoldAmount = necoTokenTotalSoldAmount.add(necoAmount);
         emit BuyNecoSuccess(msg.sender, busdAmountRequired, necoAmount);
         return true;
     }
