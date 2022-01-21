@@ -20,7 +20,12 @@ contract NecoSaleContract is Ownable {
     uint public necoTokenPrice = 3;
     // NECO Token Amount in this contract.
     uint public necoTokenTotalAmount = 0;
+
+    // the amount of slod neco.
     uint public necoTokenTotalSoldAmount = 0;
+    // the accounts which bought neco.
+    EnumerableSet.AddressSet private _accountBoughtNeco;
+
     // Max limitation for every account; 1500U for everyone
     uint public buyLimit = 1500 * 1e18;
 
@@ -35,6 +40,7 @@ contract NecoSaleContract is Ownable {
     mapping (address => uint) public hasBoughtPerAccount;
     // How much token user can claim for per account.
     mapping (address => uint) public necoTokenAmountPerAccount;
+
 
     mapping (address => mapping (uint => uint)) public userClaimRoadMap;
 
@@ -157,6 +163,9 @@ contract NecoSaleContract is Ownable {
         buildClaimRoadmap(msg.sender);
         necoTokenTotalAmount = necoTokenTotalAmount.sub(necoAmount);
         necoTokenTotalSoldAmount = necoTokenTotalSoldAmount.add(necoAmount);
+        if (!_accountBoughtNeco.contains(msg.sender)) {
+            _accountBoughtNeco.add(msg.sender);
+        }
         emit BuyNecoSuccess(msg.sender, busdAmountRequired, necoAmount);
         return true;
     }
@@ -207,6 +216,11 @@ contract NecoSaleContract is Ownable {
         return claimableAmount;
     }
 
+    function withdrawRemaining() external onlyOwner {
+        uint remainingAmount = necoTokenTotalAmount.sub(necoTokenTotalSoldAmount);
+        necoToken.transfer(owner(), remainingAmount);
+    }
+
     function emergencyWithdraw(uint amount) external onlyOwner {
         necoToken.transfer(owner(), amount);
     }
@@ -222,6 +236,14 @@ contract NecoSaleContract is Ownable {
 
     function getWhitelistAccountById(uint index) view external returns(address) {
         return _addressSet.at(index);
+    }
+
+    function getAccountBoughtNecoLength() view external returns(uint) {
+        return _accountBoughtNeco.length();
+    }
+
+    function getAccountBoughtNeco(uint index) view external returns(address) {
+        return _accountBoughtNeco.at(index);
     }
 
     modifier needHaveRemaining() {

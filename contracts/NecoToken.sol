@@ -10,7 +10,7 @@ contract NecoToken is ERC20("NecoFun", "NECO"), Ownable {
 
     event TransferUnlocked(bool result);
 
-    // when deploy this contract, will mint 1,000,000 NECO tokens on Ethereum.
+    // when this contract is deployed, it will mint 1,000,000 NECO tokens on BSC.
     constructor() {
         _mint(owner(), _mintAmount);
     }
