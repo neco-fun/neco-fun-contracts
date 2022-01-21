@@ -146,6 +146,14 @@ contract FarmingPool is Ownable {
         return Math.min(block.timestamp, halvingTime);
     }
 
+    // init data. amount should be devFundAmount + totalReward. amount will be confirmed later.
+    function initData(uint amount) external onlyOwner {
+        necoToken.transferFrom(msg.sender, address(this), amount);
+        totalReward = necoToken.balanceOf(address(this)).sub(devFundAmount);
+        require(totalReward > 0, "incorrect total reward amount!");
+        initReward = totalReward.div(2);
+    }
+
     function startFarming() external onlyOwner {
         require(necoToken.balanceOf(address(this)) > 0, "insufficient NECO token");
         updateRewards(address(0));
@@ -176,14 +184,6 @@ contract FarmingPool is Ownable {
         uint fundAmount = nowTime.sub(lastDistributeTime).mul(devDistributeRate);
         necoToken.safeTransfer(devAddr, fundAmount);
         lastDistributeTime = nowTime;
-    }
-
-    // init data. will amount should be devFundAmount + totalReward. amount will be confirmed later.
-    function initData(uint amount) external onlyOwner {
-        necoToken.transferFrom(msg.sender, address(this), amount);
-        totalReward = necoToken.balanceOf(address(this)).sub(devFundAmount);
-        require(totalReward > 0, "incorrect total reward amount!");
-        initReward = totalReward.div(2);
     }
 
     function emergencyWithdraw() external onlyOwner {
