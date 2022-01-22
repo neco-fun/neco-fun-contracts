@@ -1,5 +1,7 @@
 # neco-fun-contracts
 
+## For contract audit, please use the latest commit.
+
 All contracts will be deployed on the BSC network.
 
 ## NecoToken.sol

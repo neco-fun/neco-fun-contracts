@@ -18,8 +18,9 @@ contract NecoSaleContract is Ownable {
     address public devAddress;
     // NECO Token Price; 1 NECO for 3 busd
     uint public necoTokenPrice = 3;
-    // NECO Token Amount in this contract.
-    uint public necoTokenTotalAmount = 0;
+    // NECO Token Amount in this contract. for 100 whitelists
+    uint public necoTokenTotalAmount = 50000 * 1e18;
+    bool public initialized = false;
 
     // the amount of slod neco.
     uint public necoTokenTotalSoldAmount = 0;
@@ -67,6 +68,7 @@ contract NecoSaleContract is Ownable {
 
     // add account into whitelist.
     function addToWhitelist(address account) external onlyOwner {
+        require(_addressSet.length() <= 100, "out of limit");
         require(whitelist[account] == false && account != address(0), "This account is already in whitelist.");
         whitelist[account] = true;
         _addressSet.add(account);
@@ -86,6 +88,7 @@ contract NecoSaleContract is Ownable {
 
     // start sale
     function startSale() external onlyOwner {
+        require(initialized, "Need to call initData firstly.");
         saleStarted = true;
     }
 
@@ -95,9 +98,9 @@ contract NecoSaleContract is Ownable {
 
     // this contract will be deployed on Polygon, So we should deposit NECO tokens
     // into this contract and setup its status.
-    function depositNecoToken(uint amount) external onlyOwner {
-        necoToken.transferFrom(msg.sender, address(this), amount);
-        necoTokenTotalAmount = necoToken.balanceOf(address(this));
+    function initData() external onlyOwner {
+        necoToken.transferFrom(msg.sender, address(this), necoTokenTotalAmount);
+        initialized = true;
     }
 
     // enable claim. will be generate 9 time interval.
@@ -219,10 +222,6 @@ contract NecoSaleContract is Ownable {
     function withdrawRemaining() external onlyOwner {
         uint remainingAmount = necoTokenTotalAmount.sub(necoTokenTotalSoldAmount);
         necoToken.transfer(owner(), remainingAmount);
-    }
-
-    function emergencyWithdraw(uint amount) external onlyOwner {
-        necoToken.transfer(owner(), amount);
     }
 
     function initWhitelist() internal {

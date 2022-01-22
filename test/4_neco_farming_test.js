@@ -12,8 +12,9 @@ contract("FarmingPool", ([Tom, Jerry, Rose]) => {
     assert.equal(await farmingPool.lpToken().valueOf(), farmingLPToken.address);
     assert.equal(await farmingPool.totalSupply().valueOf(), 0);
     assert.equal(await farmingPool.initReward().valueOf(), 0);
-    assert.equal(await farmingPool.totalReward().valueOf(), 0);
+    assert.equal(await farmingPool.totalReward().valueOf(), '450000000000000000000000');
     assert.equal(await farmingPool.haveStarted().valueOf(), false);
+    assert.equal(await farmingPool.initialized().valueOf(), false);
     assert.equal(await farmingPool.devAddr().valueOf(), Tom);
   });
 
@@ -24,7 +25,8 @@ contract("FarmingPool", ([Tom, Jerry, Rose]) => {
     await necoToken.unlockTransfer();
     console.log((await necoToken.balanceOf(Tom)).valueOf() + '')
     await necoToken.approve(farmingPool.address, "600000000000000000000000", {from: Tom})
-    await farmingPool.initData('600000000000000000000000');
+    await farmingPool.initData();
+    assert.equal(await farmingPool.initialized().valueOf(), true);
     assert.equal(
       await farmingPool.totalReward().valueOf(),
       "450000000000000000000000"

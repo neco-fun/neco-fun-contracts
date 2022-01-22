@@ -22,12 +22,6 @@ contract FarmingPool is Ownable {
     EnumerableSet.AddressSet private _addressSet;
     uint private _lpTotalSupply;
 
-    // decreasing period time
-    uint public constant DURATION = 4 weeks;
-    // initial data, will be initialized in initData function
-    uint public initReward = 0;
-    uint public totalReward = 0;
-
     // next time of decreasing
     uint public halvingTime = 0;
     uint public lastUpdateTime = 0;
@@ -42,8 +36,16 @@ contract FarmingPool is Ownable {
     uint public devDistributeRate = 0;
     uint public lastDistributeTime = 0;
     uint public devFinishTime = 0;
+    // 15% of NECO for Dev Fund
     uint public devFundAmount = 150000 * 1e18;
     uint public devDistributeDuration = 180 days;
+
+    // decreasing period time
+    uint public constant DURATION = 4 weeks;
+    // 45% will be distributed via farming
+    uint public initReward = 0;
+    uint public totalReward = 450000 * 1e18;
+    bool public initialized = false;
 
     // switch
     bool public haveStarted = false;
@@ -146,15 +148,15 @@ contract FarmingPool is Ownable {
         return Math.min(block.timestamp, halvingTime);
     }
 
-    // init data. amount should be devFundAmount + totalReward. amount will be confirmed later.
-    function initData(uint amount) external onlyOwner {
-        necoToken.transferFrom(msg.sender, address(this), amount);
-        totalReward = necoToken.balanceOf(address(this)).sub(devFundAmount);
-        require(totalReward > 0, "incorrect total reward amount!");
+    function initData() external onlyOwner {
+        uint necoAmountRequired = devFundAmount.add(totalReward);
+        necoToken.transferFrom(msg.sender, address(this), necoAmountRequired);
         initReward = totalReward.div(2);
+        initialized = true;
     }
 
     function startFarming() external onlyOwner {
+        require(initialized, "need to call initData funciton firstly.");
         require(necoToken.balanceOf(address(this)) > 0, "insufficient NECO token");
         updateRewards(address(0));
         rewardRate = initReward.div(DURATION);

@@ -51,7 +51,7 @@ contract("NecoSaleContract", ([Tom, Jerry, Rose]) => {
       "50000000000000000000000",
       { from: Tom }
     );
-    await necoSaleContract.depositNecoToken('50000000000000000000000');
+    await necoSaleContract.initData();
 
     await necoSaleContract.startSale();
     await busd.mint(Tom, "10000000000000000000000");
