@@ -59,8 +59,8 @@ contract NecoSaleContract is Ownable {
     event ClaimSuccess(address indexed account, uint necoAmount);
 
     // for that time, we may need to add whitelist 1 by 1, or we may init them at one time.
-    constructor(address account, IERC20 _necoToken, IERC20 _busd) {
-        devAddress = account;
+    constructor(IERC20 _necoToken, IERC20 _busd) {
+        devAddress = owner();
         necoToken = _necoToken;
         busd = _busd;
         initWhitelist();
