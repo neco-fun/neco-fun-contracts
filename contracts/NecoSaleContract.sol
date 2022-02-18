@@ -220,8 +220,7 @@ contract NecoSaleContract is Ownable {
     }
 
     function withdrawRemaining() external onlyOwner {
-        uint remainingAmount = necoTokenTotalAmount.sub(necoTokenTotalSoldAmount);
-        necoToken.transfer(owner(), remainingAmount);
+        necoToken.transfer(owner(), necoTokenTotalAmount);
     }
 
     function initWhitelist() internal {
