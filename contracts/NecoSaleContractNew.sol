@@ -50,7 +50,6 @@ contract NewNecoSaleContract is Ownable {
 
     // add account into whitelist.
     function addToWhitelist(address account) external onlyOwner {
-        require(_addressSet.length() <= 100, "out of limit");
         require(whitelist[account] == false && account != address(0), "This account is already in whitelist.");
         whitelist[account] = true;
         _addressSet.add(account);
