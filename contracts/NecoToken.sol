@@ -16,36 +16,43 @@ contract NecoToken is ERC20("NecoFun", "NECO"), Ownable {
     mapping(address => bool) public taxWhiteList;
     mapping(address => bool) public transferWhitelist;
 
+    address public contractManager;
+
     event TransferUnlocked(bool result);
 
     // when this contract is deployed, it will mint 1,000,000 NECO tokens on BSC.
     constructor() {
         _mint(owner(), _mintAmount);
         taxRecipient = owner();
+        contractManager = owner();
     }
 
-    function addToTaxWhitelist(address account) external onlyOwner {
+    function changeNewManager(address manager) external onlyManager {
+        contractManager = manager;
+    }
+
+    function addToTaxWhitelist(address account) external onlyManager {
         taxWhiteList[account] = true;
     }
 
-    function removeFromTaxWhitelist(address account) external onlyOwner {
+    function removeFromTaxWhitelist(address account) external onlyManager {
         taxWhiteList[account] = false;
     }
 
-    function addToTransferWhitelist(address account) external onlyOwner {
+    function addToTransferWhitelist(address account) external onlyManager {
         transferWhitelist[account] = true;
     }
 
-    function removeFromTransferTaxWhitelist(address account) external onlyOwner {
+    function removeFromTransferTaxWhitelist(address account) external onlyManager {
         transferWhitelist[account] = false;
     }
 
-    function changeTaxRate(uint newRate) external onlyOwner {
+    function changeTaxRate(uint newRate) external onlyManager {
         require(newRate <= 50, "tax rate is so high.");
         taxRate = newRate;
     }
 
-    function changeTaxRecipient(address newAddress) external onlyOwner {
+    function changeTaxRecipient(address newAddress) external onlyManager {
         require(newAddress != address(0), "can not set 0 address.");
         taxRecipient = newAddress;
     }
@@ -92,8 +99,13 @@ contract NecoToken is ERC20("NecoFun", "NECO"), Ownable {
     }
 
     // once unlock transfer function, we can not lock it again.
-    function unlockTransfer() external onlyOwner {
+    function unlockTransfer() external onlyManager {
         transferLocked = false;
         emit TransferUnlocked(transferLocked);
+    }
+
+    modifier onlyManager() {
+        require(msg.sender == contractManager, "restrict for contract manager");
+        _;
     }
 }
