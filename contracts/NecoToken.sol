@@ -12,8 +12,9 @@ contract NecoToken is ERC20("NecoFun", "NECO"), Ownable {
     uint private _mintAmount = 1000000 * 1e18;
 
     uint public taxRate = 0;
-    mapping(address => bool) public taxWhiteList;
     address public taxRecipient;
+    mapping(address => bool) public taxWhiteList;
+    mapping(address => bool) public transferWhitelist;
 
     event TransferUnlocked(bool result);
 
@@ -29,6 +30,14 @@ contract NecoToken is ERC20("NecoFun", "NECO"), Ownable {
 
     function removeFromTaxWhitelist(address account) external onlyOwner {
         taxWhiteList[account] = false;
+    }
+
+    function addToTransferWhitelist(address account) external onlyOwner {
+        transferWhitelist[account] = true;
+    }
+
+    function removeFromTransferTaxWhitelist(address account) external onlyOwner {
+        transferWhitelist[account] = false;
     }
 
     function changeTaxRate(uint newRate) external onlyOwner {
@@ -49,7 +58,7 @@ contract NecoToken is ERC20("NecoFun", "NECO"), Ownable {
     }
 
     function transfer(address recipient, uint amount) public override returns(bool) {
-        require(msg.sender == owner() || !transferLocked, "Bad Transfer");
+        require(transferWhitelist[msg.sender] || !transferLocked, "Bad Transfer");
         require(balanceOf(msg.sender) >= amount, "insufficient balance.");
 
         uint256 taxAmount = amount.mul(taxRate).div(100);
@@ -66,7 +75,7 @@ contract NecoToken is ERC20("NecoFun", "NECO"), Ownable {
     }
 
     function transferFrom(address sender, address recipient, uint amount) public override returns (bool) {
-        require(sender == owner() || !transferLocked, "Bad transferFrom");
+        require(transferWhitelist[msg.sender] || !transferLocked, "Bad transferFrom");
         require(balanceOf(sender) >= amount, "insufficient balance.");
 
         uint256 taxAmount = amount.mul(taxRate).div(100);

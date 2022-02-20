@@ -1,4 +1,4 @@
-const NecoSaleContract = artifacts.require("NecoSaleContract");
+const NecoSaleContract = artifacts.require("NewNecoSaleContract");
 const NecoToken = artifacts.require("NecoToken");
 const BUSD = artifacts.require("BUSD");
 

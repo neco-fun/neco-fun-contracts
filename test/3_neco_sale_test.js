@@ -1,6 +1,6 @@
 const NecoFishingToken = artifacts.require("NecoFishingToken");
 const BUSD = artifacts.require("BUSD");
-const NecoSaleContract = artifacts.require("NecoSaleContract");
+const NecoSaleContract = artifacts.require("NewNecoSaleContract");
 const NECOToken = artifacts.require("NecoToken");
 
 contract("NecoSaleContract", ([Tom, Jerry, Rose]) => {
@@ -46,9 +46,10 @@ contract("NecoSaleContract", ([Tom, Jerry, Rose]) => {
     await necoToken.unlockTransfer();
     const busd = await BUSD.deployed();
     const necoSaleContract = await NecoSaleContract.deployed();
+    await necoToken.addToTransferWhitelist(necoSaleContract.address);
     await necoToken.approve(
       necoSaleContract.address,
-      "50000000000000000000000",
+      "100000000000000000000000",
       { from: Tom }
     );
     await necoSaleContract.initData();
@@ -66,89 +67,10 @@ contract("NecoSaleContract", ([Tom, Jerry, Rose]) => {
       from: Jerry,
     });
     assert.equal(
-      await necoSaleContract.necoTokenAmountPerAccount(Jerry).valueOf(),
-      "500000000000000000000"
-    );
-    assert.equal(
         await necoSaleContract.hasBoughtPerAccount(Jerry).valueOf(),
-        "1500000000000000000000"
+        "2000000000000000000000"
     );
-    for (let i = 0; i < 9; i++) {
-      console.log(
-        "Claimable amount is " +
-          (await necoSaleContract.userClaimRoadMap(Jerry, i))
-      );
-    }
-
-    assert.equal(
-      await necoSaleContract.userClaimRoadMap(Jerry, 0).valueOf(),
-      "100000000000000000000"
-    );
-    assert.equal(
-      await necoSaleContract.userClaimRoadMap(Jerry, 1).valueOf(),
-      "100000000000000000000"
-    );
-    assert.equal(
-      await necoSaleContract.userClaimRoadMap(Jerry, 2).valueOf(),
-      "100000000000000000000"
-    );
-    assert.equal(
-      await necoSaleContract.userClaimRoadMap(Jerry, 3).valueOf(),
-      "100000000000000000000"
-    );
-    assert.equal(
-      await necoSaleContract.userClaimRoadMap(Jerry, 4).valueOf(),
-      "100000000000000000000"
-    );
-    assert.equal(
-      await necoSaleContract.userClaimRoadMap(Jerry, 5).valueOf(),
-      "0"
-    );
+    assert.equal(await necoToken.balanceOf(Jerry).valueOf(), '500000000000000000000')
   });
 
-  it("cannot withdraw before enabling withdraw function", async () => {
-    const necoToken = await NECOToken.deployed();
-    const necoSaleContract = await NecoSaleContract.deployed();
-
-    let err = null;
-    try {
-      await necoSaleContract.claimToken({ from: Jerry });
-    } catch (error) {
-      err = error;
-    }
-    assert.ok(err instanceof Error);
-
-    await necoSaleContract.enableClaim();
-    for (let i = 0; i < 9; i++) {
-      console.log(
-        "index: " +
-          i +
-          "StartTime: " +
-          (await necoSaleContract.claimTimes(i)).startTime
-      );
-      console.log(
-        "index: " +
-          i +
-          "EndTime: " +
-          (await necoSaleContract.claimTimes(i)).endTime
-      );
-    }
-
-    console.log(
-      "this is number " + (await necoSaleContract.getCurrentIndexOfClaim())
-    );
-
-    await necoToken.unlockTransfer();
-
-    console.log(
-      "current claimable amount: " +
-        (await necoSaleContract.necoTokenClaimableAmount(Jerry))
-    );
-
-    await necoSaleContract.claimToken({ from: Jerry });
-    assert.equal(
-      await necoToken.balanceOf(Jerry).valueOf(),
-      "100000000000000000000"
-    );
-  });
 });
