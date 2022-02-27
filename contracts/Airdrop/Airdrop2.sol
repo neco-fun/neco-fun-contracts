@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "./INecoToken.sol";
+import "../INecoToken.sol";
 
 contract NecoAirdrop is Ownable {
     using SafeMath for uint;
@@ -15,7 +15,7 @@ contract NecoAirdrop is Ownable {
     INecoToken public necoToken;
     // 20 neco for everyone， winner 200 people
     uint public necoTotalClaimedAmount = 0;
-    uint public necoAmountForEveryone = 20 * 1e18;
+    uint public amountForEveryone = 20 * 1e18;
 
     // for that time, we may need to add whitelist 1 by 1, or we may init them at one time.
     constructor(INecoToken _necoToken) {
@@ -37,8 +37,8 @@ contract NecoAirdrop is Ownable {
         require(whitelist[msg.sender], "you are not in airdrop winner list.");
         require(claimed[msg.sender] == false, "you already claimed NECO.");
 
-        necoToken.transfer(msg.sender, necoAmountForEveryone);
-        necoTotalClaimedAmount = necoTotalClaimedAmount.add(necoAmountForEveryone);
+        necoToken.transfer(msg.sender, amountForEveryone);
+        necoTotalClaimedAmount = necoTotalClaimedAmount.add(amountForEveryone);
         claimed[msg.sender] = true;
     }
 
