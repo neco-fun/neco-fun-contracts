@@ -8,9 +8,8 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.4.1",
-    "truffle": "^5.4.25"
+    "truffle": "^5.5.2"
   },
-  "devDependencies": {},
   "scripts": {
     "build": "truffle compile",
     "deploy": "truffle migrate --reset",

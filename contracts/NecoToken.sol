@@ -9,12 +9,14 @@ contract NecoToken is ERC20("NecoFun", "NECO"), Ownable {
     using SafeMath for uint;
 
     bool public transferLocked = true;
-    uint private _mintAmount = 1000000 * 1e18;
+    uint public maxSupply = 1000000 * 1e18;
+    uint public currentSupply = 0;
 
     uint public taxRate = 0;
     address public taxRecipient;
     mapping(address => bool) public taxWhiteList;
     mapping(address => bool) public transferWhitelist;
+    mapping (address => bool) public minters;
 
     address public contractManager;
 
@@ -22,13 +24,20 @@ contract NecoToken is ERC20("NecoFun", "NECO"), Ownable {
 
     // when this contract is deployed, it will mint 1,000,000 NECO tokens on BSC.
     constructor() {
-        _mint(owner(), _mintAmount);
         taxRecipient = owner();
         contractManager = owner();
     }
 
     function changeNewManager(address manager) external onlyManager {
         contractManager = manager;
+    }
+
+    function addMinter(address account) public onlyOwner {
+        minters[account] = true;
+    }
+
+    function removeMinter(address account) public onlyOwner {
+        minters[account] = false;
     }
 
     function addToTaxWhitelist(address account) external onlyManager {
@@ -55,6 +64,13 @@ contract NecoToken is ERC20("NecoFun", "NECO"), Ownable {
     function changeTaxRecipient(address newAddress) external onlyManager {
         require(newAddress != address(0), "can not set 0 address.");
         taxRecipient = newAddress;
+    }
+
+    function mint(address to, uint amount) public onlyMinter {
+        currentSupply = currentSupply.add(amount);
+        require(currentSupply <= maxSupply, "Out of Max Supply.");
+        _mint(to, amount);
+
     }
 
     // only user can burn their own NECO tokens.
@@ -106,6 +122,11 @@ contract NecoToken is ERC20("NecoFun", "NECO"), Ownable {
 
     modifier onlyManager() {
         require(msg.sender == contractManager, "restrict for contract manager");
+        _;
+    }
+
+    modifier onlyMinter() {
+        require(minters[msg.sender], "Restricted to minters.");
         _;
     }
 }
