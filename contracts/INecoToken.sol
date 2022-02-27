@@ -7,6 +7,7 @@ pragma solidity ^0.8.0;
  * @dev Interface of the ERC20 standard as defined in the EIP.
  */
 interface INecoToken {
+    function minters(address account) external returns(bool);
     function mint(address to, uint amount) external;
     /**
      * @dev Returns the amount of tokens in existence.
