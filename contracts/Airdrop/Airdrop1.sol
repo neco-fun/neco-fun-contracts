@@ -16,11 +16,16 @@ contract NecoAirdrop is Ownable {
     // 20 neco for everyone， winner 200 people
     uint public necoTotalClaimedAmount = 0;
     uint public amountForEveryone = 20 * 1e18;
+    string public title = "";
 
     // for that time, we may need to add whitelist 1 by 1, or we may init them at one time.
     constructor(INecoToken _necoToken) {
         necoToken = _necoToken;
         initWhitelist();
+    }
+
+    function setupTitle(string memory newTitle) external onlyOwner {
+        title = newTitle;
     }
 
     // start sale
@@ -37,7 +42,7 @@ contract NecoAirdrop is Ownable {
         require(whitelist[msg.sender], "you are not in airdrop winner list.");
         require(claimed[msg.sender] == false, "you already claimed NECO.");
 
-        necoToken.transfer(msg.sender, amountForEveryone);
+        necoToken.mint(msg.sender, amountForEveryone);
         necoTotalClaimedAmount = necoTotalClaimedAmount.add(amountForEveryone);
         claimed[msg.sender] = true;
     }
