@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-contract NecoToken is ERC20("NecoFun", "NECO"), Ownable {
+contract NecoToken is ERC20("Neco Fun", "NECO"), Ownable {
     using SafeMath for uint;
 
     bool public transferLocked = true;
