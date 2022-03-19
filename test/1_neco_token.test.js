@@ -1,13 +1,13 @@
 const NecoToken = artifacts.require("NecoToken");
 
-contract("NecoToken", ([Tom, Jerry, Rose]) => {
+contract("NecoToken", ([Tom, Jerry, Rose, Lucy]) => {
   it("should have correct initial data.", async () => {
     const necoToken = await NecoToken.deployed();
     const name = await necoToken.name();
     const symbol = await necoToken.symbol();
     const locked = await necoToken.transferLocked();
 
-    assert.equal(name.valueOf(), "NecoFun");
+    assert.equal(name.valueOf(), "Neco Fun");
     assert.equal(symbol.valueOf(), "NECO");
     assert.equal(locked.valueOf(), true);
     assert.equal(
@@ -16,7 +16,7 @@ contract("NecoToken", ([Tom, Jerry, Rose]) => {
     );
   });
 
-  it("should only allow onwer to add minter", async function () {
+  it("should only allow owner to add minter", async function () {
     const necoToken = await NecoToken.deployed();
     await necoToken.addMinter(Tom, { from: Tom });
     await necoToken.addMinter(Jerry, { from: Tom });
@@ -101,7 +101,6 @@ contract("NecoToken", ([Tom, Jerry, Rose]) => {
 
   it("need to pay tax for transfer", async () => {
     const necoToken = await NecoToken.deployed();
-    await necoToken.unlockTransfer();
     await necoToken.changeTaxRate(10);
     assert.equal(await necoToken.taxRate().valueOf(), 10)
     await necoToken.changeTaxRecipient(Jerry)
@@ -115,5 +114,17 @@ contract("NecoToken", ([Tom, Jerry, Rose]) => {
     await necoToken.transferFrom(Tom, Rose, 100)
     assert.equal(await necoToken.balanceOf(Jerry).valueOf(), 10);
     assert.equal(await necoToken.balanceOf(Rose).valueOf(), 290);
+  })
+
+  it("should have a good amount limit function", async () => {
+    const necoToken = await NecoToken.deployed();
+    await necoToken.mint(Tom, '700000000000000000000', { from: Tom });
+    let err = null;
+    try {
+      await necoToken.transfer(Lucy, '500000000000000000001', { from: Tom });
+    } catch (error) {
+      err = error;
+    }
+    assert.ok(err instanceof Error);
   })
 });

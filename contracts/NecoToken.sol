@@ -18,14 +18,33 @@ contract NecoToken is ERC20("Neco Fun", "NECO"), Ownable {
     mapping(address => bool) public transferWhitelist;
     mapping (address => bool) public minters;
 
-    address public contractManager;
+    bool public amountLock = true;
+    uint public maxAmountPerAccount = 500 * 1e18;
+    mapping(address => bool) public amountLockWhitelist;
 
-    event TransferUnlocked(bool result);
+    address public contractManager;
 
     // when this contract is deployed, it will mint 1,000,000 NECO tokens on BSC.
     constructor() {
         taxRecipient = owner();
         contractManager = owner();
+    }
+
+    function addToAmountLockWhitelist(address account) public onlyManager {
+        amountLockWhitelist[account] = true;
+    }
+
+    function removeFromAmountLockWhitelist(address account) public onlyManager {
+        amountLockWhitelist[account] = false;
+    }
+
+    function cancelAmountLock() public onlyManager {
+        require(amountLock == true, "already canceled amount lock.");
+        amountLock = false;
+    }
+
+    function changeMaxAmountPerAccount(uint newAmount) public onlyManager {
+        maxAmountPerAccount = newAmount;
     }
 
     function changeNewManager(address manager) external onlyManager {
@@ -70,7 +89,6 @@ contract NecoToken is ERC20("Neco Fun", "NECO"), Ownable {
         currentSupply = currentSupply.add(amount);
         require(currentSupply <= maxSupply, "Out of Max Supply.");
         _mint(to, amount);
-
     }
 
     // only user can burn their own NECO tokens.
@@ -90,6 +108,9 @@ contract NecoToken is ERC20("Neco Fun", "NECO"), Ownable {
         }
         uint256 transferAmount = amount.sub(taxAmount);
         require(balanceOf(msg.sender) >= amount, "insufficient balance.");
+        if (amountLockWhitelist[recipient] == false) {
+            require(balanceOf(recipient).add(transferAmount) <= maxAmountPerAccount, "Out of max amount limit.");
+        }
         super.transfer(recipient, transferAmount);
         if (taxAmount != 0) {
             super.transfer(taxRecipient, taxAmount);
@@ -107,6 +128,9 @@ contract NecoToken is ERC20("Neco Fun", "NECO"), Ownable {
         }
         uint256 transferAmount = amount.sub(taxAmount);
         require(balanceOf(sender) >= amount, "insufficient balance.");
+        if (amountLockWhitelist[recipient] == false) {
+            require(balanceOf(recipient).add(transferAmount) <= maxAmountPerAccount, "Out of max amount limit.");
+        }
         super.transferFrom(sender, recipient, transferAmount);
         if (taxAmount != 0) {
             super.transferFrom(sender, taxRecipient, taxAmount);
@@ -116,8 +140,8 @@ contract NecoToken is ERC20("Neco Fun", "NECO"), Ownable {
 
     // once unlock transfer function, we can not lock it again.
     function unlockTransfer() external onlyManager {
+        require(transferLocked == true, "Trasfer function is already unlocked.");
         transferLocked = false;
-        emit TransferUnlocked(transferLocked);
     }
 
     modifier onlyManager() {
