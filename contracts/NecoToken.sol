@@ -24,7 +24,6 @@ contract NecoToken is ERC20("Neco Fun", "NECO"), Ownable {
 
     address public contractManager;
 
-    // when this contract is deployed, it will mint 1,000,000 NECO tokens on BSC.
     constructor() {
         taxRecipient = owner();
         contractManager = owner();
