@@ -20,6 +20,7 @@ contract SwapNecoToBUSD is Ownable {
     }
 
     function swap() external {
+        require(swapLock == false, "swap is locked.");
         uint necoAmount = oldNECO.balanceOf(msg.sender);
         require(necoAmount > 0, "Not enough NECO token.");
         oldNECO.transferFrom(msg.sender, address(this), necoAmount);
