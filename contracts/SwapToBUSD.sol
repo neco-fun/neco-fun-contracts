@@ -12,20 +12,20 @@ contract SwapNecoToBUSD is Ownable {
     IERC20 public busd;
     uint public necoPrice = 4;
 
-    bool swapLock = true;
+    bool public swapLock = true;
 
     constructor(IERC20 _neco, IERC20 _busd) {
         neco = _neco;
         busd = _busd;
     }
 
-    function swap() external {
+    function swap() public {
         require(!swapLock, "swap function is locked.");
 
         uint necoAmount = neco.balanceOf(msg.sender);
         require(necoAmount > 0, "Not enough NECO token.");
         neco.transferFrom(msg.sender, address(this), necoAmount);
-        uint busdAmount = necoAmount.mul(4);
+        uint busdAmount = necoAmount.mul(necoPrice);
         busd.transfer(msg.sender, busdAmount);
     }
 
@@ -42,5 +42,9 @@ contract SwapNecoToBUSD is Ownable {
     function lockSwap() external onlyOwner {
         require(swapLock == false, "swap lock is locked.");
         swapLock = true;
+    }
+
+    function busdBalance() view public returns(uint) {
+        return busd.balanceOf(address(this));
     }
 }
