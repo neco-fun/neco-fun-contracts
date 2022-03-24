@@ -6,13 +6,13 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./INecoToken.sol";
 
-contract SwapNecoToBUSD is Ownable {
+contract SwapNecoToNeco is Ownable {
     using SafeMath for uint;
 
     IERC20 public oldNECO;
     INecoToken public newNECO;
 
-    bool swapLock = true;
+    bool public swapLock = true;
 
     constructor(IERC20 _oldNECO, INecoToken _newNECO) {
         oldNECO = _oldNECO;
