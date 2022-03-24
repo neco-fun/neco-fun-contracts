@@ -14,7 +14,8 @@ contract NecoToken is ERC20("Neco Fun", "NECO"), Ownable {
 
     uint public taxRate = 0;
     address public taxRecipient;
-    mapping(address => bool) public taxBlackList;
+    mapping(address => bool) public taxTransferBlacklist;
+    mapping(address => bool) public taxTransferFromBlacklist;
     mapping(address => bool) public transferWhitelist;
     mapping (address => bool) public minters;
 
@@ -58,12 +59,20 @@ contract NecoToken is ERC20("Neco Fun", "NECO"), Ownable {
         minters[account] = false;
     }
 
-    function addToTaxBlacklist(address account) external onlyManager {
-        taxBlackList[account] = true;
+    function addToTaxTransferBlacklist(address account) external onlyManager {
+        taxTransferBlacklist[account] = true;
     }
 
-    function removeFromTaxBlacklist(address account) external onlyManager {
-        taxBlackList[account] = false;
+    function removeFromTaxTransferBlacklist(address account) external onlyManager {
+        taxTransferBlacklist[account] = false;
+    }
+
+    function addToTaxTransferFromBlacklist(address account) external onlyManager {
+        taxTransferFromBlacklist[account] = true;
+    }
+
+    function removeFromTaxTransferFromBlacklist(address account) external onlyManager {
+        taxTransferFromBlacklist[account] = false;
     }
 
     function addToTransferWhitelist(address account) external onlyManager {
@@ -102,7 +111,7 @@ contract NecoToken is ERC20("Neco Fun", "NECO"), Ownable {
         require(balanceOf(msg.sender) >= amount, "insufficient balance.");
         // Tax
         uint256 taxAmount = 0;
-        if (taxBlackList[msg.sender]) {
+        if (taxTransferBlacklist[msg.sender]) {
             taxAmount = amount.mul(taxRate).div(100);
         }
         uint256 transferAmount = amount.sub(taxAmount);
@@ -118,11 +127,11 @@ contract NecoToken is ERC20("Neco Fun", "NECO"), Ownable {
     }
 
     function transferFrom(address sender, address recipient, uint amount) public override returns (bool) {
-        require(transferWhitelist[msg.sender] || !transferLocked, "Bad transferFrom");
+        require(transferWhitelist[sender] || !transferLocked, "Bad transferFrom");
         require(balanceOf(sender) >= amount, "insufficient balance.");
         // For tax
         uint256 taxAmount = 0;
-        if (taxBlackList[recipient]) {
+        if (taxTransferFromBlacklist[recipient]) {
             taxAmount = amount.mul(taxRate).div(100);
         }
         uint256 transferAmount = amount.sub(taxAmount);
