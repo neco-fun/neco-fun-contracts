@@ -19,12 +19,21 @@ contract SwapNecoToNeco is Ownable {
         newNECO = _newNECO;
     }
 
+    function necoBalance() view public returns(uint) {
+        return newNECO.balanceOf(address(this));
+    }
+
+    function withdrawNeco() external onlyOwner {
+        uint amount = newNECO.balanceOf(address(this));
+        newNECO.transfer(owner(), amount);
+    }
+
     function swap() external {
         require(swapLock == false, "swap is locked.");
         uint necoAmount = oldNECO.balanceOf(msg.sender);
         require(necoAmount > 0, "Not enough NECO token.");
         oldNECO.transferFrom(msg.sender, address(this), necoAmount);
-        newNECO.mint(msg.sender, necoAmount);
+        newNECO.transfer(msg.sender, necoAmount);
     }
 
     function unlockSwap() external onlyOwner {
