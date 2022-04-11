@@ -5,10 +5,8 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-contract NecoFishingToken is ERC20("NecoFishing", "NFISH"), Ownable {
+contract NecoFishingToken is ERC20("Neco Fishing", "NFISH"), Ownable {
     using SafeMath for uint;
-
-    mapping (address=>bool) public burners;
 
     uint public maxSupply = 100000000 * 1e18;
     uint public taxRate = 0;
@@ -22,15 +20,6 @@ contract NecoFishingToken is ERC20("NecoFishing", "NFISH"), Ownable {
         taxRecipient = owner();
         contractManager = owner();
         _mint(owner(), maxSupply);
-    }
-
-    function addBurner(address account) external onlyManager {
-        require(account != address(0), "You can not add address 0");
-        burners[account] = true;
-    }
-
-    function removeBurner(address account) external onlyManager {
-        burners[account] = false;
     }
 
     function changeTaxRate(uint newRate) external onlyManager {
@@ -47,12 +36,6 @@ contract NecoFishingToken is ERC20("NecoFishing", "NFISH"), Ownable {
         require(amount > 0, "can not burn 0 token");
         require(balanceOf(msg.sender) >= amount);
         _burn(msg.sender, amount);
-        return true;
-    }
-
-    function burnFrom(address sender, uint amount) external onlyBurner returns(bool) {
-        require(amount > 0 && sender != address(0), "Burn amount or address is 0");
-        _burn(sender, amount);
         return true;
     }
 
@@ -84,11 +67,6 @@ contract NecoFishingToken is ERC20("NecoFishing", "NFISH"), Ownable {
             super.transferFrom(sender, taxRecipient, taxAmount);
         }
         return true;
-    }
-
-    modifier onlyBurner() {
-        require(burners[msg.sender], "Restricted to burners.");
-        _;
     }
 
     modifier onlyManager() {
