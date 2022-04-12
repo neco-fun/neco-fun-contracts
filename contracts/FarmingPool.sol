@@ -107,7 +107,7 @@ contract FarmingPool is Ownable {
 
     function checkDecreasing() internal {
         if (block.timestamp >= halvingTime) {
-            initReward = initReward.mul(50).div(100);
+            initReward = initReward.mul(80).div(100);
             rewardRate = initReward.div(DURATION);
             halvingTime = halvingTime.add(DURATION);
 
