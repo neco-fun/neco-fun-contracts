@@ -133,7 +133,7 @@ contract NecoNFT is ERC1155, ERC1155Burnable, Ownable {
         return _idToType1[id];
     }
 
-    function changeNFTTYpe1(uint id, uint newType) external onlyCreator {
+    function changeNFTType1(uint id, uint newType) external onlyCreator {
         _idToType1[id] = newType;
     }
 
