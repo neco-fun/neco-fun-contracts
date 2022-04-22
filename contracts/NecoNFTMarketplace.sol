@@ -22,8 +22,8 @@ contract NecoMarketplace is Ownable, ERC1155Holder {
     address public devAddress;
     bool public locked = false;
 
-    // Percent of trading fee;
-    uint public fee = 0;
+    // Percent of trading fee; 5% default
+    uint public fee = 5;
 
     struct Item {
         uint id;
