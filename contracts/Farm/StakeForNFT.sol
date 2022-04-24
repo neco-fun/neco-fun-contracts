@@ -5,11 +5,15 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "../NFT/INecoNFT.sol";
 
 
 contract StakeForNFT is Ownable {
     using SafeMath for uint;
+    using EnumerableSet for EnumerableSet.AddressSet;
+
+    EnumerableSet.AddressSet private stakedAccounts;
 
     IERC20 stakeToken;
     INecoNFT necoNFT;
@@ -53,6 +57,14 @@ contract StakeForNFT is Ownable {
         lock = true;
     }
 
+    function stakedAccountLength() view public returns(uint) {
+        return stakedAccounts.length();
+    }
+
+    function stakedAccountAt(uint index) view public returns(address) {
+        return stakedAccounts.at(index);
+    }
+
     function stake() external {
         require(lock == false, "Staking is locked.");
         require(stakeToken.balanceOf(msg.sender) >= tokenRequiredAmount, "Insufficient Balance.");
@@ -61,6 +73,9 @@ contract StakeForNFT is Ownable {
         stakedAmountForAccount[msg.sender] = stakedAmountForAccount[msg.sender].add(tokenRequiredAmount);
         stakedStatusForAccount[msg.sender] = true;
         unlockTimeForAccount[msg.sender] = block.timestamp.add(farmingPeriod);
+        if (!stakedAccounts.contains(msg.sender)) {
+            stakedAccounts.add(msg.sender);
+        }
     }
 
     function withdraw() external {
