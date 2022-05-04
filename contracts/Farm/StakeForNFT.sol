@@ -15,8 +15,8 @@ contract StakeForNFT is Ownable {
 
     EnumerableSet.AddressSet private stakedAccounts;
 
-    IERC20 stakeToken;
-    INecoNFT necoNFT;
+    IERC20 public stakeToken;
+    INecoNFT public necoNFT;
 
     uint public id;
     uint public tokenRequiredAmount;
@@ -24,9 +24,9 @@ contract StakeForNFT is Ownable {
     uint public farmingPeriod;
     bool public lock;
 
-    mapping(address => uint) stakedAmountForAccount;
-    mapping(address => uint) unlockTimeForAccount;
-    mapping(address => bool) stakedStatusForAccount;
+    mapping(address => uint) public stakedAmountForAccount;
+    mapping(address => uint) public unlockTimeForAccount;
+    mapping(address => bool) public stakedStatusForAccount;
 
     constructor(IERC20 _stakeToken, INecoNFT _necoNFT) {
         stakeToken = _stakeToken;
@@ -48,12 +48,12 @@ contract StakeForNFT is Ownable {
 
     function unlockStaking() external onlyOwner {
         require(necoNFT.minters(address(this)), "NFT farming pool is not a minter");
-        require(lock == false, "Farming pool is already opened.");
+        require(lock == true, "Farming pool is already opened.");
         lock = false;
     }
 
     function lockStaking() external onlyOwner {
-        require(lock == true, "Farming pool is already closed.");
+        require(lock == false, "Farming pool is already closed.");
         lock = true;
     }
 
