@@ -80,8 +80,9 @@ contract StakeForNFT is Ownable {
 
     function withdraw() external {
         require(stakedStatusForAccount[msg.sender], "You are not staking.");
-        require(unlockTimeForAccount[msg.sender] >= block.timestamp, "Token is still locked.");
+        require(block.timestamp >= unlockTimeForAccount[msg.sender], "Token is still locked.");
         stakeToken.transfer(msg.sender, stakedAmountForAccount[msg.sender]);
+        stakedAmountForAccount[msg.sender] = 0;
         stakedStatusForAccount[msg.sender] = false;
         necoNFT.mint(earnedNFTId, msg.sender, 1, "NFT Farming Reward.");
     }
