@@ -7,18 +7,17 @@ import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-// NecoNFT is game props for NecoFishing game.
 contract NecoNFT is ERC1155, ERC1155Burnable, Ownable {
     using SafeMath for uint256;
     using Address for address;
     using EnumerableSet for EnumerableSet.UintSet;
 
-    // only creators can mint new NFT.
     mapping(address => bool) public creators;
+    mapping(address => bool) public minters;
     // uri mapping for tokenId
     mapping(uint => string) private _uris;
-    mapping(uint => uint) private _idToType;
-    mapping(uint => uint) private _idToGameType;
+    mapping(uint => uint) private _idToType1;
+    mapping(uint => uint) private _idToType2;
     // TokenId array
     EnumerableSet.UintSet private _tokenIds;
     // Some default NFTs need to be locked.
@@ -28,7 +27,7 @@ contract NecoNFT is ERC1155, ERC1155Burnable, Ownable {
 
     constructor(string memory uri_) ERC1155(uri_) {}
 
-    event Create(uint indexed tokenId, address indexed to, string uri, uint quantity, uint nftType);
+    event Create(uint indexed tokenId, address indexed to, string uri, uint quantity, uint type1, uint type2);
     event Mint(uint indexed tokenId, address indexed to, uint quantity);
 
     // before calling this function, we should upload metadata of this NFT to IPFS.
@@ -38,8 +37,8 @@ contract NecoNFT is ERC1155, ERC1155Burnable, Ownable {
         address to,
         string memory nftUrl,
         uint quantity,
-        uint gameType,
-        uint nftType,
+        uint type1,
+        uint type2,
         bytes memory data
     ) external onlyCreator {
         bytes memory uriBytes = bytes(nftUrl);
@@ -48,14 +47,14 @@ contract NecoNFT is ERC1155, ERC1155Burnable, Ownable {
         _uris[tokenId] = nftUrl;
         _tokenIds.add(tokenId);
         totalSupply[tokenId] = totalSupply[tokenId].add(quantity);
-        _idToGameType[tokenId] = gameType;
-        _idToType[tokenId] = nftType;
+        _idToType1[tokenId] = type1;
+        _idToType2[tokenId] = type2;
         _mint(to, tokenId, quantity, data);
 
-        emit Create(tokenId, to, nftUrl, quantity, nftType);
+        emit Create(tokenId, to, nftUrl, quantity, type1, type2);
     }
 
-    function mint(uint tokenId, address to, uint quantity, bytes memory data) external onlyCreator {
+    function mint(uint tokenId, address to, uint quantity, bytes memory data) external onlyMinter {
         require(quantity > 0, "quantity cannot be 0!");
         require(_tokenIds.contains(tokenId), "NFT has not been created!");
         totalSupply[tokenId] = totalSupply[tokenId].add(quantity);
@@ -87,11 +86,20 @@ contract NecoNFT is ERC1155, ERC1155Burnable, Ownable {
         creators[account] = false;
     }
 
+    function addMinters(address account) external onlyOwner {
+        require(account != address(0), "minter can not be address 0");
+        minters[account] = true;
+    }
+
+    function removeMinter(address account) external onlyOwner {
+        minters[account] = false;
+    }
+
     function addLockedNFT(uint id) external onlyCreator {
         _lockedTokenIds.add(id);
     }
 
-    function cancelLockingNFT(uint id) external onlyCreator {
+    function cancelLockedNFT(uint id) external onlyCreator {
         _lockedTokenIds.remove(id);
     }
 
@@ -121,20 +129,20 @@ contract NecoNFT is ERC1155, ERC1155Burnable, Ownable {
         transferWhitelist[account] = false;
     }
 
-    function getGameType(uint id) public view returns(uint) {
-        return _idToGameType[id];
+    function getNFTType1(uint id) public view returns(uint) {
+        return _idToType1[id];
     }
 
-    function changeGameType(uint id, uint newType) external onlyCreator {
-        _idToGameType[id] = newType;
+    function changeNFTType1(uint id, uint newType) external onlyCreator {
+        _idToType1[id] = newType;
     }
 
-    function getNFTType(uint id) public view returns(uint) {
-        return _idToType[id];
+    function getNFTType2(uint id) public view returns(uint) {
+        return _idToType2[id];
     }
 
-    function changeNFTType(uint id, uint newType) external onlyCreator {
-        _idToType[id] = newType;
+    function changeNFTType2(uint id, uint newType) external onlyCreator {
+        _idToType2[id] = newType;
     }
 
     function safeTransferFrom(
@@ -169,6 +177,11 @@ contract NecoNFT is ERC1155, ERC1155Burnable, Ownable {
 
     modifier onlyCreator() {
         require(creators[msg.sender] == true, "restrict for creators!");
+        _;
+    }
+
+    modifier onlyMinter() {
+        require(minters[msg.sender] == true, "restrict for minters!");
         _;
     }
 }
