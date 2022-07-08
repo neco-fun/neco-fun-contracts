@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "./INecoToken.sol";
+import "../ERC20Token/INecoToken.sol";
 
 contract SwapNecoToNeco is Ownable {
     using SafeMath for uint;

@@ -6,9 +6,9 @@ import "@openzeppelin/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-import "./INecoToken.sol";
+import "../ERC20Token/INecoToken.sol";
 
-contract StakeNECOToNECO is Ownable {
+contract StakeLpToNECO is Ownable {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
     using Address for address;
@@ -22,7 +22,7 @@ contract StakeNECOToNECO is Ownable {
 
     // decreasing period time
     uint256 public constant DURATION = 2 weeks;
-    uint256 public initReward = 200000 * 1e18;
+    uint256 public initReward = 480000 * 1e18;
     bool public haveStarted = false;
     // next time of decreasing
     uint256 public halvingTime = 0;
@@ -39,7 +39,7 @@ contract StakeNECOToNECO is Ownable {
     uint256 public devDistributeRate = 0;
     uint256 public lastDistributeTime = 0;
     uint256 public devFinishTime = 0;
-    uint256 public devFundAmount = 0 * 1e18;
+    uint256 public devFundAmount = 150000 * 1e18;
     uint256 public devDistributeDuration = 180 days;
 
     event Stake(address indexed from, uint amount);
