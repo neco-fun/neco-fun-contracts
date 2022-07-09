@@ -89,7 +89,7 @@ contract NecoFishingItemStore is Ownable, ERC1155Holder {
         nfish.transfer(owner(), balance);
     }
 
-    function energencyWithdrwaBUSD() external onlyOwner {
+    function emergencyWithdrawBUSD() external onlyOwner {
         uint balance = busd.balanceOf(address(this));
         busd.transfer(owner(), balance);
     }
