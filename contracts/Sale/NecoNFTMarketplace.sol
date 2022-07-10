@@ -20,12 +20,12 @@ contract NecoMarketplace is Ownable, ERC1155Holder {
     Counters.Counter private _itemIdCounter;
     Counters.Counter private _ItemSoldCounter;
 
-    IERC20 public nfishToken;
-    IERC1155 public necoNFT;
-    address public devAddress;
+    IERC20 public nfishToken; //NFISH token
+    IERC1155 public necoNFT; // NECO NFT
+    address public devAddress; // Fee charger
     bool public locked = false;
 
-    // Percent of trading fee; 5% default
+    // Percent of trading fee; default is 5%
     uint public fee = 5;
 
     struct Item {
@@ -36,12 +36,17 @@ contract NecoMarketplace is Ownable, ERC1155Holder {
         uint amount;
         uint price;
         uint onListTime;
-        bool isSold;
         bool isOnList;
+        bool isSold;
+        uint soldTime;
     }
+    // Get item by id
     mapping (uint => Item) public idToItem;
+    // Query items posted by user
     mapping (address=>EnumerableSet.UintSet) private _sellerToPublishedId;
+    // Query items sold by user
     mapping (address=>EnumerableSet.UintSet) private _sellerToSoldId;
+    // Query items bought by user
     mapping (address=>EnumerableSet.UintSet) private _buyerToItemId;
 
     event PublishNewItem(address indexed account, uint ItemId, uint nftId, uint amount, uint price);
@@ -66,6 +71,7 @@ contract NecoMarketplace is Ownable, ERC1155Holder {
         item.onListTime = block.timestamp;
         item.isSold = false;
         item.isOnList = true;
+        item.soldTime = 0;
         _itemIdCounter.increment();
         necoNFT.safeTransferFrom(msg.sender, address(this), nftId, amount, 'Sell NFT');
 
@@ -112,6 +118,7 @@ contract NecoMarketplace is Ownable, ERC1155Holder {
         item.buyer = msg.sender;
         item.isSold = true;
         item.isOnList = false;
+        item.soldTime = block.timestamp;
         EnumerableSet.UintSet storage soldIds = _sellerToSoldId[item.seller];
         soldIds.add(id);
 
