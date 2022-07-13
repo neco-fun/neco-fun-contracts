@@ -48,7 +48,7 @@ contract NecoFishingToken is ERC20("Neco Fishing", "NFISH"), Ownable {
 
     function transfer(address recipient, uint amount) public override returns(bool) {
         require(balanceOf(msg.sender) >= amount, "insufficient balance.");
-        // Tax
+        // charge fee.
         uint256 taxAmount = 0;
         if (taxTransferBlacklist[msg.sender]) {
             taxAmount = amount.mul(taxRate).div(100);
