@@ -7,10 +7,16 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract NecoFishingToken is ERC20("Neco Fishing", "NFISH"), Ownable {
     using SafeMath for uint;
+    // The total supply of NFISH token is 1,000,000,000
+    uint public maxSupply = 1000000000 * 1e18;
 
-    uint public maxSupply = 100000000 * 1e18;
+    // Trading of NFISH will be charged some fee.
     uint public taxRate = 0;
+
+    // Trading fee charger.
     address public taxRecipient;
+
+    // Backlist for trading, address which was added into blacklist will be charged fee.
     mapping(address => bool) public taxTransferBlacklist;
     mapping(address => bool) public taxTransferFromBlacklist;
 
@@ -22,6 +28,7 @@ contract NecoFishingToken is ERC20("Neco Fishing", "NFISH"), Ownable {
         _mint(owner(), maxSupply);
     }
 
+    // change fee rate, max rate should be less than 50%
     function changeTaxRate(uint newRate) external onlyManager {
         require(newRate <= 50, "tax rate is so high.");
         taxRate = newRate;
