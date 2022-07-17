@@ -27,9 +27,29 @@ contract NecoFishingItemStore is Ownable, ERC1155Holder {
     constructor(INecoNFT _necoNFT, IERC20 _nfish, IERC20 _busd, address _devAccount, address _operator) {
         necoNFT = _necoNFT;
         nfish = _nfish;
-        _busd = busd;
+        busd = _busd;
         devAccount = _devAccount;
         operator = _operator;
+    }
+
+    function changeNFTContractAddress(INecoNFT newAddress) external onlyOwner {
+        necoNFT = newAddress;
+    }
+
+    function changeNFISHContractAddress(IERC20 newAddress) external onlyOwner {
+        nfish = newAddress;
+    }
+
+    function changeBUSDContractAddress(IERC20 newAddress) external onlyOwner {
+        busd = newAddress;
+    }
+
+    function changeDevAccount(address newAccount) external onlyOwner {
+        devAccount = newAccount;
+    }
+
+    function changeOperatorAccount(address newAccount) external onlyOwner {
+        operator = newAccount;
     }
 
     function depositNFISHToken(uint amount) external {
